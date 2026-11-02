@@ -1,7 +1,14 @@
 import unittest
 from zoneinfo import ZoneInfo
 
-from irctc_preflight import ConfigurationError, get_trigger_datetime, validate_config
+from argparse import Namespace
+
+from irctc_preflight import (
+    ConfigurationError,
+    apply_cli_overrides,
+    get_trigger_datetime,
+    validate_config,
+)
 
 
 class ConfigValidationTests(unittest.TestCase):
@@ -47,6 +54,36 @@ class ConfigValidationTests(unittest.TestCase):
         self.assertEqual(trigger.tzinfo, ZoneInfo("Asia/Kolkata"))
         self.assertEqual(trigger.hour, 10)
         self.assertEqual(trigger.minute, 0)
+
+    def test_cli_overrides_journey_date_and_quota(self):
+        args = Namespace(
+            origin=None,
+            destination=None,
+            journey_date="2026-11-05",
+            quota="TATKAL",
+            train="KARNATAKA EXP (12627)",
+            travel_class="3A",
+            trigger_at="2026-11-04T10:00:00",
+        )
+        apply_cli_overrides(self.config, args)
+        self.assertEqual(self.config["trip"]["journey_date"], "2026-11-05")
+        self.assertEqual(self.config["trip"]["quota"], "TATKAL")
+        self.assertEqual(self.config["trip"]["preferred_train"], "KARNATAKA EXP (12627)")
+        self.assertEqual(self.config["trip"]["preferred_class"], "3A")
+        self.assertEqual(self.config["schedule"]["trigger_at"], "2026-11-04T10:00:00")
+
+    def test_cli_override_rejects_invalid_date(self):
+        args = Namespace(
+            origin=None,
+            destination=None,
+            journey_date="05-11-2026",
+            quota=None,
+            train=None,
+            travel_class=None,
+            trigger_at=None,
+        )
+        with self.assertRaises(ConfigurationError):
+            apply_cli_overrides(self.config, args)
 
 
 if __name__ == "__main__":
