@@ -19,6 +19,16 @@ cp config.example.toml config.toml
 
 Edit `config.toml`: set station codes and `journey_date` (YYYY-MM-DD), choose `quota` as `GENERAL`, `TATKAL` or `PREMIUM TATKAL`, set the preferred train/class notes, and choose a future `trigger_at` time. The sample is SBC → AGC, 2026-11-04, Karnataka Express (12627), 3A. These values are displayed as reminders only; the script does not select the quota, train, class or date on the IRCTC page. The timezone defaults to `Asia/Kolkata`. Update the trigger before every run; the script rejects past times.
 
+One-run overrides (do not edit the TOML file):
+
+```bash
+python irctc_preflight.py --config config.toml --date 2026-11-04 --quota GENERAL
+python irctc_preflight.py --config config.toml --date 2026-11-04 --quota TATKAL
+python irctc_preflight.py --config config.toml --date 2026-11-04 --quota "PREMIUM TATKAL"
+```
+
+Optional overrides: `--origin SBC`, `--destination AGC`, `--train "KARNATAKA EXP (12627)"`, `--class 3A`, and `--trigger-at 2026-11-03T10:00:00`. Overrides apply to that run only.
+
 ## Run
 
 Validate configuration and local dependencies without opening a browser:
@@ -33,11 +43,17 @@ Launch Chromium and wait for the reminder:
 python irctc_preflight.py --config config.toml
 ```
 
-1. Chromium opens with a dedicated persistent profile.
-2. Log in manually and prepare the official IRCTC page.
-3. At the configured time, the tool displays a KDE notification (when `notify-send` is available) and a terminal alert.
-4. Complete search, selection, passenger entry, verification and payment manually.
-5. Press Enter in the terminal when finished to close the browser cleanly.
+At the reminder time, the terminal prints the screenshot-matched manual sequence:
+
+1. Search the configured route, date and quota.
+2. Find Karnataka Express (12627), open 3A availability and refresh/check the required date.
+3. Select the required date card and click Book Now.
+4. Select the intended saved passenger from Master List and verify the prefilled details.
+5. Choose the payment mode and click Continue.
+6. Review the journey, passenger and fare details; click Continue.
+7. Complete IRCTC verification and payment manually.
+
+The checklist is informational only. It does not click, refresh, select, populate or submit any IRCTC page controls.
 
 ## Security
 
