@@ -1,0 +1,67 @@
+# IRCTC Browser Preflight (Fedora KDE)
+
+A small Python utility for preparing a **manual** IRCTC booking session. It launches Chromium through Selenium using a dedicated persistent browser profile, opens the official IRCTC train-search page, and shows a KDE desktop/terminal reminder at a configured time.
+
+It does **not** log in, search trains, change quota/class, select trains, fill passenger forms, submit booking requests, handle OTP/CAPTCHA, or make payments. Those actions remain manual.
+
+> **IRCTC policy:** IRCTC's published terms state that use of automation and/or scripting software is prohibited and identify suspicious activity involving scripting tools/Tatkal software as grounds for account deactivation and ticket release without refund. Read the current [IRCTC terms and conditions](https://contents.irctc.co.in/en/Terms%20and%20conditions.pdf) before using browser automation. This project deliberately limits automation to opening a browser and displaying a reminder.
+
+## Fedora KDE installation
+
+```bash
+sudo dnf install python3 python3-pip chromium libnotify
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+cp config.example.toml config.toml
+```
+
+Edit `config.toml`: set station codes, journey date, quota (planning metadata only), preferred train/class notes, and a future `trigger_at` time. The timezone defaults to `Asia/Kolkata`. Update the trigger before every run; the script rejects past times.
+
+## Run
+
+Validate configuration and local dependencies without opening a browser:
+
+```bash
+python irctc_preflight.py --config config.toml --check-only
+```
+
+Launch Chromium and wait for the reminder:
+
+```bash
+python irctc_preflight.py --config config.toml
+```
+
+1. Chromium opens with a dedicated persistent profile.
+2. Log in manually and prepare the official IRCTC page.
+3. At the configured time, the tool displays a KDE notification (when `notify-send` is available) and a terminal alert.
+4. Complete search, selection, passenger entry, verification and payment manually.
+5. Press Enter in the terminal when finished to close the browser cleanly.
+
+## Security
+
+The profile defaults to `~/.local/share/irctc-preflight/chrome-profile` and can contain session cookies. Do not commit, upload, share or sync it. The application does not ask for or store passwords, passenger data, Aadhaar details, OTPs or payment information.
+
+The script does not hide WebDriver, bypass bot checks, defeat CAPTCHA/OTP, call private IRCTC endpoints or manipulate page controls. Do not add these behaviours. Close the browser using the script before launching another instance with the same profile.
+
+## Clock accuracy
+
+Check Fedora's clock/NTP status before a time-sensitive run:
+
+```bash
+timedatectl status
+sudo timedatectl set-ntp true
+```
+
+## Tests
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+## References
+
+- [Selenium Manager documentation](https://www.selenium.dev/documentation/selenium_manager/) — built-in browser-driver management.
+- [Selenium Python documentation](https://www.selenium.dev/selenium/docs/api/py/) — Python bindings and installation.
+- [IRCTC terms and conditions](https://contents.irctc.co.in/en/Terms%20and%20conditions.pdf) — current terms take precedence.
