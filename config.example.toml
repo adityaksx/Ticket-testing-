@@ -1,0 +1,19 @@
+[browser]
+# Use "auto" to detect Chromium/Chrome, or set an executable path.
+binary = "auto"
+# Keep this profile separate from your everyday Chromium profile.
+profile_dir = "~/.local/share/irctc-preflight/chrome-profile"
+start_url = "https://www.irctc.co.in/nget/train-search"
+
+[trip]
+origin = "SBC"
+destination = "AGC"
+journey_date = "2026-11-04"
+quota = "GENERAL"
+preferred_train = "SBC Rajdhani"
+preferred_class = "3A"
+
+[schedule]
+timezone = "Asia/Kolkata"
+# Change to a future local date/time before running.
+trigger_at = "2026-11-03T10:00:00"
