@@ -267,7 +267,7 @@ def apply_cli_overrides(config: dict[str, Any], args: argparse.Namespace) -> Non
 def print_manual_booking_checklist(config: dict[str, Any]) -> None:
     """Print the human-operated flow; do not interact with IRCTC page controls."""
     trip = config["trip"]
-    print("\\n=== Manual booking checklist (no page actions are automated) ===")
+    print("\n=== Manual booking checklist (no page actions are automated) ===")
     print(
         f"Configured: {trip['origin'].upper()} -> {trip['destination'].upper()} | "
         f"{trip['journey_date']} | {str(trip.get('quota', 'GENERAL')).upper()} | "
