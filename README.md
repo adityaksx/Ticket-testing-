@@ -17,7 +17,7 @@ python -m pip install -r requirements.txt
 cp config.example.toml config.toml
 ```
 
-Edit `config.toml`: set station codes, journey date, quota (planning metadata only), preferred train/class notes, and a future `trigger_at` time. The timezone defaults to `Asia/Kolkata`. Update the trigger before every run; the script rejects past times.
+Edit `config.toml`: set station codes and `journey_date` (YYYY-MM-DD), choose `quota` as `GENERAL`, `TATKAL` or `PREMIUM TATKAL`, set the preferred train/class notes, and choose a future `trigger_at` time. The sample is SBC → AGC, 2026-11-04, Karnataka Express (12627), 3A. These values are displayed as reminders only; the script does not select the quota, train, class or date on the IRCTC page. The timezone defaults to `Asia/Kolkata`. Update the trigger before every run; the script rejects past times.
 
 ## Run
 
