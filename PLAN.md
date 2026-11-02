@@ -9,9 +9,10 @@ Reduce avoidable preparation overhead for a user-operated IRCTC booking session 
 1. **Environment preflight** — check Python, Selenium, Chromium/Chrome and configuration.
 2. **Dedicated browser profile** — launch the official IRCTC train-search page with a persistent, owner-only browser profile.
 3. **Manual authentication** — user enters credentials and completes verification directly on IRCTC.
-4. **Journey configuration** — keep origin, destination, journey date, quota and preferred train/class as local planning metadata.
+4. **Journey configuration** — keep origin, destination, journey date, quota and preferred train/class as local planning metadata; support one-run CLI overrides.
 5. **Time reminder** — wait until a timezone-aware target and notify through KDE (`notify-send`) and the terminal.
-6. **Clean shutdown** — keep the WebDriver session alive while the user completes manual actions, then close it on confirmation.
+6. **Manual flow checklist** — print the screenshot-matched sequence for Karnataka Express (12627), 3A availability, date card, Book Now, Master List passenger, payment-mode Continue and review-page Continue.
+7. **Clean shutdown** — keep the WebDriver session alive while the user completes manual actions, then close it on confirmation.
 
 ## Explicit non-goals
 
@@ -62,6 +63,8 @@ User confirms completion -> close browser
 - [ ] A second run can reuse the profile after the first browser session is closed.
 - [ ] Trigger produces a terminal alert and a KDE desktop notification when `notify-send` is installed.
 - [ ] No credentials, passenger PII, OTPs or payment data are written to configuration or logs.
+- [ ] CLI date and quota overrides are validated and do not mutate the saved TOML file.
+- [ ] The screenshot-matched manual checklist prints at reminder time.
 - [ ] No IRCTC page controls or booking endpoints are automated.
 
 ## Possible next improvements
