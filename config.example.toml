@@ -10,7 +10,7 @@ origin = "SBC"
 destination = "AGC"
 journey_date = "2026-11-04"
 quota = "GENERAL"
-preferred_train = "SBC Rajdhani"
+preferred_train = "KARNATAKA EXP (12627)"
 preferred_class = "3A"
 
 [schedule]
