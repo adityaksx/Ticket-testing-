@@ -226,6 +226,58 @@ def print_trip_summary(
     print("Automation:  browser launch and reminder only; page actions are manual")
 
 
+
+MANUAL_BOOKING_CHECKLIST = (
+    "Search the configured SBC -> AGC journey for the configured date.",
+    "Choose the configured quota (General, Tatkal or Premium Tatkal) on the website.",
+    "Find KARNATAKA EXP (12627) in the results.",
+    "Open AC 3 Tier (3A) availability and manually refresh/check availability.",
+    "Choose the required journey-date card and click Book Now.",
+    "On Passenger Details, manually select the intended passenger from Master List.",
+    "Verify passenger/contact details; leave correct prefilled fields unchanged.",
+    "On Payment Mode, choose your payment method and click Continue manually.",
+    "On Review Journey, verify train, date, passenger and fare; click Continue manually.",
+    "Complete IRCTC verification and payment manually; confirm the final booking status.",
+)
+
+
+def apply_cli_overrides(config: dict[str, Any], args: argparse.Namespace) -> None:
+    """Apply optional one-run CLI overrides, then validate the merged config."""
+    trip = config["trip"]
+    schedule = config["schedule"]
+
+    if args.origin:
+        trip["origin"] = args.origin.upper()
+    if args.destination:
+        trip["destination"] = args.destination.upper()
+    if args.journey_date:
+        trip["journey_date"] = args.journey_date
+    if args.quota:
+        trip["quota"] = args.quota
+    if args.train:
+        trip["preferred_train"] = args.train
+    if args.travel_class:
+        trip["preferred_class"] = args.travel_class.upper()
+    if args.trigger_at:
+        schedule["trigger_at"] = args.trigger_at
+
+    validate_config(config)
+
+
+def print_manual_booking_checklist(config: dict[str, Any]) -> None:
+    """Print the human-operated flow; do not interact with IRCTC page controls."""
+    trip = config["trip"]
+    print("\\n=== Manual booking checklist (no page actions are automated) ===")
+    print(
+        f"Configured: {trip['origin'].upper()} -> {trip['destination'].upper()} | "
+        f"{trip['journey_date']} | {str(trip.get('quota', 'GENERAL')).upper()} | "
+        f"{trip.get('preferred_train', 'KARNATAKA EXP (12627)')} | "
+        f"{trip.get('preferred_class', '3A')}"
+    )
+    for index, step in enumerate(MANUAL_BOOKING_CHECKLIST, start=1):
+        print(f"{index:>2}. {step}")
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Launch a persistent IRCTC browser profile and show a reminder."
@@ -241,6 +293,24 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Validate configuration and browser/Selenium installation without opening a browser.",
     )
+    parser.add_argument("--origin", help="One-run origin station code, e.g. SBC.")
+    parser.add_argument("--destination", help="One-run destination station code, e.g. AGC.")
+    parser.add_argument(
+        "--date",
+        dest="journey_date",
+        help="One-run journey date in YYYY-MM-DD format; overrides config.toml.",
+    )
+    parser.add_argument(
+        "--quota",
+        choices=("GENERAL", "TATKAL", "PREMIUM TATKAL"),
+        help="One-run quota setting; planning metadata only.",
+    )
+    parser.add_argument("--train", help="One-run preferred train note.")
+    parser.add_argument("--class", dest="travel_class", help="One-run preferred class note, e.g. 3A.")
+    parser.add_argument(
+        "--trigger-at",
+        help="One-run local reminder time in YYYY-MM-DDTHH:MM:SS format.",
+    )
     return parser.parse_args()
 
 
@@ -248,6 +318,7 @@ def main() -> int:
     args = parse_args()
     try:
         config = load_config(args.config)
+        apply_cli_overrides(config, args)
         target = get_trigger_datetime(config)
         now = datetime.now(target.tzinfo)
         if target <= now:
@@ -281,7 +352,7 @@ def main() -> int:
                 f"{trip['destination'].upper()} | {trip['journey_date']} | "
                 f"{str(trip.get('quota', 'GENERAL')).upper()}",
             )
-            print("Complete all page actions, verification and payment manually.")
+            print_manual_booking_checklist(config)
             input("\nPress ENTER here after you are finished to close the browser... ")
         except KeyboardInterrupt:
             print("\nInterrupted by user.")
